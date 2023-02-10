@@ -1,5 +1,7 @@
 package com.monkcommerce.monkcommerceapi.validations;
 
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
+
 import java.util.regex.Pattern;
 
 public class EmailValidator
@@ -11,11 +13,10 @@ public class EmailValidator
                 .matcher(email)
                 .matches();
     }
-    public static void isEmailValidThrowException(String email)
-    {
+    public static void isEmailValidThrowException(String email) throws InputException {
         if(!isEmailValidBoolean(email))
         {
-            // throw custom exception
+            throw new InputException("Improper Email Format");
         }
     }
 }

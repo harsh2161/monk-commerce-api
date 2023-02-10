@@ -4,6 +4,7 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.monkcommerce.monkcommerceapi.constants.ExternalAPI;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.request.CategoryRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.CategoriesDTO;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
@@ -28,11 +29,11 @@ public class CategoriesRepository
     private static Firestore firebaseDatabase;
     private static CollectionReference baseCollection;
     private static Integer BATCH_LIMIT = 500;
-    public ProcessStatus getAndStoreCategoriesFromExternalApi()
-    {
+    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
         Integer page = ExternalAPI.DEFAULT_PAGE;
         CategoriesDTO categoriesDTO = new CategoriesDTO();
-        while(true && page<5)
+
+        while(true)
         {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<CategoriesDTO> response = restTemplate.exchange(ExternalAPI.getCategoriesWithParams(ExternalAPI.DEFAULT_LIMIT,page), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())) , new ParameterizedTypeReference<CategoriesDTO>() {});
@@ -49,7 +50,7 @@ public class CategoriesRepository
 
         if(categoriesDTO.getCategories() != null && categoriesDTO.getCategories().size() > 0)
             if(!saveAllFetchedCategories(categoriesDTO.getCategories()))
-                return new ProcessStatus();
+                throw new DataException("Data is not saved to our database");
 
         return new ProcessStatus(true,ExternalAPI.DATA_SAVED);
     }

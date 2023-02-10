@@ -1,6 +1,5 @@
 package com.monkcommerce.monkcommerceapi.data_objects.process;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

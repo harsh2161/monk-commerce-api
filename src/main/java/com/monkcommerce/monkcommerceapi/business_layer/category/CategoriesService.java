@@ -1,5 +1,7 @@
 package com.monkcommerce.monkcommerceapi.business_layer.category;
 
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.request.CategoryRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.CategoriesDTO;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
@@ -13,25 +15,21 @@ import org.springframework.stereotype.Service;
 public class CategoriesService
 {
     private final CategoriesRepository categoriesRepository;
-    public ProcessStatus getAndStoreCategoriesFromExternalApi()
-    {
+    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
         return categoriesRepository.getAndStoreCategoriesFromExternalApi();
     }
 
-    public CategoriesDTO getCategories(CategoryRequest request)
-    {
+    public CategoriesDTO getCategories(CategoryRequest request) throws InputException {
         if(request == null)
             request = new CategoryRequest();
 
-        if(!ValidatePageLimitRequest(request))
-        {
-            // throw custom exception
-        }
+        ValidatePageLimitRequest(request);
+
         return categoriesRepository.getCategories(request);
     }
 
-    private boolean ValidatePageLimitRequest(CategoryRequest request)
-    {
-        return PageAndLimitValidator.isPageValid(request.getPage()) && PageAndLimitValidator.isLimitValid(request.getLimit());
+    private void ValidatePageLimitRequest(CategoryRequest request) throws InputException {
+        PageAndLimitValidator.isPageValidException(request.getPage());
+        PageAndLimitValidator.isLimitValidException(request.getLimit());
     }
 }

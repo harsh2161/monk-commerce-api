@@ -2,6 +2,8 @@ package com.monkcommerce.monkcommerceapi.business_layer.authentication;
 
 import com.monkcommerce.monkcommerceapi.business_layer.jwts.JwtService;
 import com.monkcommerce.monkcommerceapi.constants.JwtS;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
@@ -22,19 +24,14 @@ public class AuthenticationService
     private final AuthenticationRepository authenticationRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    public AuthRegisterResponse register(RegisterRequest request) throws ExecutionException, InterruptedException
-    {
-        if(!ValidateRegisterRequest(request))
-        {
-            // throw custom exception
-            return new AuthRegisterResponse();
-        }
+    public AuthRegisterResponse register(RegisterRequest request) throws InputException, ExecutionException, InterruptedException, DataException {
+        ValidateRegisterRequest(request);
 
         request = createUserForRegister(request);
 
         if(!authenticationRepository.registerUser(request))
         {
-            // throw custom exception
+            throw new DataException("User Not Registered, Try Again :(");
         }
 
         var jwtToken = jwtService.generateToken(request.getEmail());
@@ -42,56 +39,34 @@ public class AuthenticationService
         return AuthRegisterResponse.builder().token(jwtToken).id(null).email(null).password(null).build();
     }
 
-    public AuthRegisterResponse authenticate(AuthenticationRequest request) throws ExecutionException, InterruptedException
-    {
-        if(!AuthenticateRegisterRequest(request))
-        {
-            // throw custom exception
-            return new AuthRegisterResponse();
-        }
+    public AuthRegisterResponse authenticate(AuthenticationRequest request) throws ExecutionException, InterruptedException, InputException, DataException {
+        AuthenticateRegisterRequest(request);
 
         var response = authenticationRepository.authenticateUser(request);
 
-        if(response == null)
-        {
-            // throw custom exception
-        }
-
         boolean isPasswordMatch = passwordEncoder.matches(request.getPassword(), response.getPassword());
 
-        if(isPasswordMatch)
+        if(!isPasswordMatch)
         {
-            var jwtToken = jwtService.generateToken(request.getEmail());
-            return AuthRegisterResponse.builder().token(jwtToken).id(null).email(null).password(null).build();
+            throw new InputException("Invalid Password!!");
         }
 
-        // throw custom exception
-        return new AuthRegisterResponse();
+        var jwtToken = jwtService.generateToken(request.getEmail());
+        return AuthRegisterResponse.builder().token(jwtToken).id(null).email(null).password(null).build();
     }
 
-    private boolean ValidateRegisterRequest(RegisterRequest request)
-    {
+    private void ValidateRegisterRequest(RegisterRequest request) throws InputException {
+
         if(request.getName().isBlank() || request.getEmail().isBlank() || request.getPassword().isBlank())
         {
-            return false;
+            throw new InputException("Name, Email, Password All Are Mandatory.");
         }
 
-        if(!NameValidator.isNameValidBoolean(request.getName()))
-        {
-            return false;
-        }
+        NameValidator.isNameValidThrowException(request.getName());
 
-        if(!EmailValidator.isEmailValidBoolean(request.getEmail()))
-        {
-            return false;
-        }
+        EmailValidator.isEmailValidThrowException(request.getEmail());
 
-        if(!PasswordValidator.isPasswordValidBoolean(request.getPassword()))
-        {
-            return false;
-        }
-
-        return true;
+        PasswordValidator.isPasswordValidThrowException(request.getPassword());
     }
     private RegisterRequest createUserForRegister(RegisterRequest registerUser)
     {
@@ -100,23 +75,14 @@ public class AuthenticationService
         return registerUser;
     }
 
-    private boolean AuthenticateRegisterRequest(AuthenticationRequest request)
+    private void AuthenticateRegisterRequest(AuthenticationRequest request) throws InputException
     {
-        if(request.getEmail().isBlank() || request.getPassword().isBlank())
-        {
-            return false;
+        if (request.getEmail().isBlank() || request.getPassword().isBlank()) {
+            throw new InputException("Email, Password All Are Mandatory.");
         }
 
-        if(!EmailValidator.isEmailValidBoolean(request.getEmail()))
-        {
-            return false;
-        }
+        EmailValidator.isEmailValidThrowException(request.getEmail());
 
-        if(!PasswordValidator.isPasswordValidBoolean(request.getPassword()))
-        {
-            return false;
-        }
-
-        return true;
+        PasswordValidator.isPasswordValidThrowException(request.getPassword());
     }
 }

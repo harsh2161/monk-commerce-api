@@ -1,5 +1,7 @@
 package com.monkcommerce.monkcommerceapi.business_layer.products;
 
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import com.monkcommerce.monkcommerceapi.data_objects.products.request.ProductRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.products.response.ProductDTO;
@@ -14,29 +16,23 @@ import org.springframework.stereotype.Service;
 public class ProductService
 {
     private final ProductRepository productRepository;
-    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId)
-    {
-        if(!IdValidator.isIdValidBoolean(categoryId))
-        {
-            // throw custom exception
-        }
+    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws InputException, DataException {
+        IdValidator.isIdValidThrowException(categoryId);
         return productRepository.getAndStoreProductsFromExternalApi(categoryId);
     }
 
-    public ProductDTO getProducts(ProductRequest request)
-    {
+    public ProductDTO getProducts(ProductRequest request) throws InputException {
         if(request == null)
             request = new ProductRequest();
 
-        if(!ValidatePageLimitRequest(request) && !IdValidator.isIdValidBoolean(request.getCategoryId()))
-        {
-            // throw custom exception
-        }
+        ValidatePageLimitRequest(request);
+        IdValidator.isIdValidThrowException(request.getCategoryId());
+
         return productRepository.getProducts(request);
     }
 
-    private boolean ValidatePageLimitRequest(ProductRequest request)
-    {
-        return PageAndLimitValidator.isPageValid(request.getPage()) && PageAndLimitValidator.isLimitValid(request.getLimit());
+    private void ValidatePageLimitRequest(ProductRequest request) throws InputException {
+        PageAndLimitValidator.isPageValidException(request.getPage());
+        PageAndLimitValidator.isLimitValidException(request.getLimit());
     }
 }

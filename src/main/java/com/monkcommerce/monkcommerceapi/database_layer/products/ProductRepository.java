@@ -5,6 +5,7 @@ import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.Gson;
 import com.monkcommerce.monkcommerceapi.constants.ExternalAPI;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import com.monkcommerce.monkcommerceapi.data_objects.products.request.ProductRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.products.response.Product;
@@ -28,35 +29,28 @@ public class ProductRepository
     private static Firestore firebaseDatabase;
     private static CollectionReference baseCollection;
     private static Integer BATCH_LIMIT = 500;
-    private QueryDocumentSnapshot documentCategory;
 
-    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId)
-    {
-        try {
-            Integer page = ExternalAPI.DEFAULT_PAGE;
-            ProductDTO productDTO = new ProductDTO();
-            while (true) {
-                RestTemplate restTemplate = new RestTemplate();
-                ResponseEntity<String> response = restTemplate.exchange(ExternalAPI.getProductWithParams(ExternalAPI.DEFAULT_PRODUCT_LIMIT, page, categoryId), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())), new ParameterizedTypeReference<String>() {});
-                var product = response.getBody();
+    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws DataException {
+        Integer page = ExternalAPI.DEFAULT_PAGE;
+        ProductDTO productDTO = new ProductDTO();
+        while (true) {
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(ExternalAPI.getProductWithParams(ExternalAPI.DEFAULT_PRODUCT_LIMIT, page, categoryId), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())), new ParameterizedTypeReference<String>() {});
+            var product = response.getBody();
 
-                Gson json = new Gson();
-                ProductDTO products = json.fromJson(product, ProductDTO.class);
+            Gson json = new Gson();
+            ProductDTO products = json.fromJson(product, ProductDTO.class);
 
-                if (products != null && products.getProducts() != null && products.getProducts().size() > 0)
-                    productDTO.AddCategories(products.getProducts());
-                else
-                    break;
+            if (products != null && products.getProducts() != null && products.getProducts().size() > 0)
+                productDTO.AddCategories(products.getProducts());
+            else
+                break;
 
-                page++;
-            }
-            if (productDTO.getProducts() != null && productDTO.getProducts().size() > 0)
-                if (!saveAllFetchedProducts(categoryId, productDTO.getProducts()))
-                    return new ProcessStatus();
-        }catch (Exception ex)
-        {
-            System.out.println(ex.getMessage());
+            page++;
         }
+        if (productDTO.getProducts() != null && productDTO.getProducts().size() > 0)
+            if (!saveAllFetchedProducts(categoryId, productDTO.getProducts()))
+                throw new DataException("Data is not saved to our database");
 
         return new ProcessStatus(true,ExternalAPI.DATA_SAVED);
     }

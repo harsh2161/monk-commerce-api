@@ -1,5 +1,7 @@
 package com.monkcommerce.monkcommerceapi.validations;
 
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
+
 public class PageAndLimitValidator
 {
     public static final Integer PAGE_LIMIT = 100;
@@ -7,24 +9,20 @@ public class PageAndLimitValidator
     {
         return true;
     }
-    public static void isPageValidException(Integer page)
-    {
+    public static void isPageValidException(Integer page) throws InputException {
         if(!isPageValid(page))
         {
-            // throw Custom Exception
+            throw new InputException("Page Should have Proper Value");
         }
     }
     public static boolean isLimitValid(Integer limit)
     {
-        if(limit > PAGE_LIMIT)
-            return true;
-        return false;
+        return limit < PAGE_LIMIT;
     }
-    public static void isLimitValidException(Integer limit)
-    {
+    public static void isLimitValidException(Integer limit) throws InputException {
         if(!isLimitValid(limit))
         {
-            // throw Exception
+            throw new InputException("Limit is max 100 only");
         }
     }
 }

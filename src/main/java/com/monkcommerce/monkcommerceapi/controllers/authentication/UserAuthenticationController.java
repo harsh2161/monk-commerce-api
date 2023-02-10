@@ -1,6 +1,8 @@
 package com.monkcommerce.monkcommerceapi.controllers.authentication;
 
 import com.monkcommerce.monkcommerceapi.business_layer.authentication.AuthenticationService;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.InputException;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
@@ -22,12 +24,12 @@ public class UserAuthenticationController
     @Autowired
     private final AuthenticationService service;
     @PostMapping("/register")
-    public ResponseEntity<AuthRegisterResponse> register(@RequestBody RegisterRequest request) throws ExecutionException, InterruptedException {
+    public ResponseEntity<AuthRegisterResponse> register(@RequestBody RegisterRequest request) throws InputException, ExecutionException, InterruptedException, DataException {
         return ResponseEntity.ok(service.register(request));
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthRegisterResponse> authenticate(@RequestBody AuthenticationRequest request) throws ExecutionException, InterruptedException {
+    public ResponseEntity<AuthRegisterResponse> authenticate(@RequestBody AuthenticationRequest request) throws ExecutionException, InterruptedException, InputException, DataException {
         return ResponseEntity.ok(service.authenticate(request));
     }
 }
