@@ -1,9 +1,9 @@
-package com.monkcommerce.monkcommerceapi.database_layer;
+package com.monkcommerce.monkcommerceapi.database_layer.authentication;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import com.monkcommerce.monkcommerceapi.data_objects.AuthRegisterResponse;
+import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
 import org.springframework.stereotype.Service;

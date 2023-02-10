@@ -1,7 +1,7 @@
 package com.monkcommerce.monkcommerceapi.configurations;
 
-import com.monkcommerce.monkcommerceapi.data_objects.AuthRegisterResponse;
-import com.monkcommerce.monkcommerceapi.database_layer.AuthenticationRepository;
+import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
+import com.monkcommerce.monkcommerceapi.database_layer.authentication.AuthenticationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;

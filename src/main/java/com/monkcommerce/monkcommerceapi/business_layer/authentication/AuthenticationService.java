@@ -2,10 +2,10 @@ package com.monkcommerce.monkcommerceapi.business_layer.authentication;
 
 import com.monkcommerce.monkcommerceapi.business_layer.jwts.JwtService;
 import com.monkcommerce.monkcommerceapi.constants.JwtS;
-import com.monkcommerce.monkcommerceapi.data_objects.AuthRegisterResponse;
+import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
-import com.monkcommerce.monkcommerceapi.database_layer.AuthenticationRepository;
+import com.monkcommerce.monkcommerceapi.database_layer.authentication.AuthenticationRepository;
 import com.monkcommerce.monkcommerceapi.validations.EmailValidator;
 import com.monkcommerce.monkcommerceapi.validations.NameValidator;
 import com.monkcommerce.monkcommerceapi.validations.PasswordValidator;

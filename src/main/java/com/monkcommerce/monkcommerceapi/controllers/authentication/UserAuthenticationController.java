@@ -1,7 +1,7 @@
 package com.monkcommerce.monkcommerceapi.controllers.authentication;
 
 import com.monkcommerce.monkcommerceapi.business_layer.authentication.AuthenticationService;
-import com.monkcommerce.monkcommerceapi.data_objects.AuthRegisterResponse;
+import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegisterResponse;
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
 import lombok.RequiredArgsConstructor;

@@ -1,4 +1,4 @@
-package com.monkcommerce.monkcommerceapi.data_objects;
+package com.monkcommerce.monkcommerceapi.data_objects.authentication;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
