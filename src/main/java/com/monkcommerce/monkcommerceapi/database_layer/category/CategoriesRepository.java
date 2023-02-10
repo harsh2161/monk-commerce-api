@@ -32,7 +32,8 @@ public class CategoriesRepository
     {
         Integer page = ExternalAPI.DEFAULT_PAGE;
         CategoriesDTO categoriesDTO = new CategoriesDTO();
-        while(true && page<5)
+
+        while(true)
         {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<CategoriesDTO> response = restTemplate.exchange(ExternalAPI.getCategoriesWithParams(ExternalAPI.DEFAULT_LIMIT,page), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())) , new ParameterizedTypeReference<CategoriesDTO>() {});
