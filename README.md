@@ -13,7 +13,7 @@ Authentication Api Link
 2. https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-d0795899-f55f-497c-96c1-764ebe7956f3
 
 OR MANUALLY AT POSTMAN (MUST CHECK YOUR LOCALHOST : 8080)
-1. http://localhost:8080/api/v1/auth/register
+1. POST : http://localhost:8080/api/v1/auth/register
 payload
 {
     "name":"harsh ping",
@@ -21,7 +21,7 @@ payload
     "password":"Harsh6@2161"
 }
 
-2. http://localhost:8080/api/v1/auth/authenticate
+2. POST : http://localhost:8080/api/v1/auth/authenticate
 payload
 {
     "email":"harsh5@gmail.com",
@@ -29,8 +29,8 @@ payload
 }
 
 Category Api Link
-1. POST : https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-cbd7ab41-3db3-4413-867a-f276226b7f22
-2. POST : https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-ed2641fd-4904-4947-b786-1721271980a8
+1. https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-cbd7ab41-3db3-4413-867a-f276226b7f22
+2. https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-ed2641fd-4904-4947-b786-1721271980a8
 
 OR MANUALLY AT POSTMAN (MUST CHECK YOUR LOCALHOST : 8080)
 1. GET : http://localhost:8080/api/v1/task/categories/save
