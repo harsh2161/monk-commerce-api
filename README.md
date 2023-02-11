@@ -72,6 +72,7 @@ Skype : https://join.skype.com/invite/w7Fv2iEpdwlS
 ShowCase : https://www.showwcase.com/harshpandey9079939
 Twitter : https://twitter.com/harshpandey2121
 Github : https://github.com/harsh2161
+Gmail : harshpandey9079@gmail.com
 
 Thankyou
 Harsh Pandey
