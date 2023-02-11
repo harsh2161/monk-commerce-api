@@ -13,10 +13,10 @@ public class Product
 {
     private Long sku;
     private String name;
-    private double salePrice;
+    private Object salePrice;
     private ArrayList<ImageURL> images = new ArrayList<>();
-    private boolean digital;
-    private double shippingCost;
+    private Object digital;
+    private Object shippingCost;
     private String description;
     private Integer customerReviewCount;
 

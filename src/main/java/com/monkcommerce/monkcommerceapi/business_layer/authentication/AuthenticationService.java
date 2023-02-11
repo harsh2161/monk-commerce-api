@@ -28,6 +28,7 @@ public class AuthenticationService
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
+
     public AuthRegisterResponse register(RegisterRequest request) throws InputException, ExecutionException, InterruptedException, DataException
     {
         logger.info("Register Process of Service Layer "+request.getEmail()+" is started.");

@@ -30,14 +30,14 @@ public class ProductDTO
         if(data == null)
             return;
         Product product = new Product();
-        product.setSku((Long) data.get("sku"));
-        product.setName("" + data.get("name"));
-        product.setSalePrice((double) data.get("salePrice"));
-        product.setDigital((boolean) data.get("digital"));
-        product.setShippingCost((double) data.get("shippingCost"));
-        product.setDescription(""+data.get("description"));
-        product.setCustomerReviewCount((Integer) (data.get("customerReviewCount") == null ? 0 : data.get("customerReviewCount")));
-        product.setImages(data.get("images") == null ? new ArrayList<ImageURL>() : (ArrayList<ImageURL>) data.get("images"));
+        try { product.setSku((Long) data.get("sku"));}catch (Exception ex) { return; }
+        try { product.setName("" + data.get("name"));}catch (Exception ex) { product.setName("");}
+        try { product.setSalePrice(data.get("salePrice"));} catch (Exception ex) { product.setSalePrice(0.0); }
+        try { product.setDigital(data.get("digital"));} catch (Exception ex) { product.setDigital(false);}
+        try { product.setShippingCost(data.get("shippingCost"));} catch (Exception ex) { product.setShippingCost(0.0); }
+        try { product.setDescription(""+data.get("description"));} catch (Exception ex) { product.setDescription(""); }
+        try { product.setCustomerReviewCount((Integer) (data.get("customerReviewCount") == null ? 0 : data.get("customerReviewCount")));} catch (Exception ex) { product.setCustomerReviewCount(0); }
+        try { product.setImages(data.get("images") == null ? new ArrayList<ImageURL>() : (ArrayList<ImageURL>) data.get("images"));} catch (Exception ex) {product.setImages(new ArrayList<ImageURL>());}
         products.add(product);
     }
 }

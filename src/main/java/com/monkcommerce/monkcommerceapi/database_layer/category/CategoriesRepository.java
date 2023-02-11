@@ -9,9 +9,11 @@ import com.monkcommerce.monkcommerceapi.data_objects.categories.request.Category
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.CategoriesDTO;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
+import com.monkcommerce.monkcommerceapi.database_layer.products.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -32,11 +34,12 @@ public class CategoriesRepository
     private static CollectionReference baseCollection;
     private static final Logger logger = LoggerFactory.getLogger(CategoriesRepository.class);
     private static Integer BATCH_LIMIT = 500;
+    private static final ProductRepository productRepository = new ProductRepository();
     public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
         logger.info("Calling External api in repository started.");
 
         Integer page = ExternalAPI.DEFAULT_PAGE;
-        CategoriesDTO categoriesDTO = new CategoriesDTO();
+        boolean isResponseTrue = true;
 
         while(true)
         {
@@ -46,24 +49,24 @@ public class CategoriesRepository
             var categories = response.getBody();
 
             if(categories != null && categories.getCategories() != null && categories.getCategories().size() > 0)
-                categoriesDTO.AddCategories(categories.getCategories());
+            {
+                logger.info("Fetched External api in repository completed.");
+                isResponseTrue = isResponseTrue & saveAllFetchedCategories(categories.getCategories());
+            }
             else
                 break;
 
             page++;
         }
-        logger.info("Fetched External api in repository completed.");
-        if(categoriesDTO.getCategories() != null && categoriesDTO.getCategories().size() > 0)
-            if(!saveAllFetchedCategories(categoriesDTO.getCategories()))
-            {
-                logger.error("Data is not saved to our database");
-                throw new DataException("Data is not saved to our database");
-            }
-
+        if(!isResponseTrue)
+        {
+            logger.error("Data is not saved to our database");
+            throw new DataException("Data is not saved to our database");
+        }
         logger.info("Data is saved our database");
         return new ProcessStatus(true,ExternalAPI.DATA_SAVED);
     }
-
+    @Bean("asyncExecution")
     public static boolean saveAllFetchedCategories(ArrayList<Category> categories)
     {
         try {
@@ -95,6 +98,7 @@ public class CategoriesRepository
                 Response = Stream.of(commitCategories).allMatch(val -> commitCategories.isDone()) && Response;
             }
             logger.info("Saved the data to our servers");
+            Response = Response & productRepository.getAndStoreProductsFromExternalApi(categories);
             return Response;
         }
         catch (Exception ex)

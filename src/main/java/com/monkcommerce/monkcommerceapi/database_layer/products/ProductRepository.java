@@ -1,11 +1,13 @@
 package com.monkcommerce.monkcommerceapi.database_layer.products;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
 import com.google.gson.Gson;
 import com.monkcommerce.monkcommerceapi.constants.ExternalAPI;
 import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import com.monkcommerce.monkcommerceapi.data_objects.products.request.ProductRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.products.response.Product;
@@ -13,6 +15,7 @@ import com.monkcommerce.monkcommerceapi.data_objects.products.response.ProductDT
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -20,9 +23,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
@@ -32,37 +37,43 @@ public class ProductRepository
     private static Firestore firebaseDatabase;
     private static CollectionReference baseCollection;
     private static Integer BATCH_LIMIT = 500;
+    @Bean("asyncExecution")
+    public boolean getAndStoreProductsFromExternalApi(ArrayList<Category> categories) throws DataException {
+        boolean response = true;
+        for (var category : categories)
+        {
+            response = response & getAndStoreProductsFromExternalApi(category.getId()).isSuccess();
+        }
+        return response;
+    }
+    @Bean("asyncExecution")
     public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws DataException {
         logger.info("Calling External api in repository started.");
         Integer page = ExternalAPI.DEFAULT_PAGE;
-        ProductDTO productDTO = new ProductDTO();
+        boolean isResponseTrue = true;
         while (true) {
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<String> response = restTemplate.exchange(ExternalAPI.getProductWithParams(ExternalAPI.DEFAULT_PRODUCT_LIMIT, page, categoryId), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())), new ParameterizedTypeReference<String>() {});
             var product = response.getBody();
 
-            Gson json = new Gson();
-            ProductDTO products = json.fromJson(product, ProductDTO.class);
+            ProductDTO products = extractProductValue(product);
 
-            if (products != null && products.getProducts() != null && products.getProducts().size() > 0)
-                productDTO.AddCategories(products.getProducts());
+            if (products.getProducts() != null && products.getProducts().size() > 0)
+            {
+                isResponseTrue = isResponseTrue & saveAllFetchedProducts(categoryId, products.getProducts());
+            }
             else
                 break;
 
             page++;
         }
-        logger.info("Fetched External api in repository completed.");
-        if (productDTO.getProducts() != null && productDTO.getProducts().size() > 0)
-            if (!saveAllFetchedProducts(categoryId, productDTO.getProducts()))
-            {
-                logger.error("Data is not saved to our database");
-                throw new DataException("Data is not saved to our database");
-            }
-
-        logger.info("Data is saved our database");
+        if(!isResponseTrue)
+        {
+            return new ProcessStatus(false,"Product are not saved properly");
+        }
+        logger.info("Product Data is saved our database");
         return new ProcessStatus(true,ExternalAPI.DATA_SAVED);
     }
-
     public ProductDTO getProducts(ProductRequest productRequest) throws DataException {
         try {
             logger.info("Get Products from our databases");
@@ -89,7 +100,7 @@ public class ProductRepository
 
         throw new DataException("Data is not present");
     }
-
+    @Bean("asyncExecution")
     private boolean saveAllFetchedProducts(String categoryId, ArrayList<Product> products)
     {
         try
@@ -151,5 +162,14 @@ public class ProductRepository
             System.out.println(ex.getMessage());
         }
         return false;
+    }
+    private ProductDTO extractProductValue(String product)
+    {
+        ProductDTO productDTO = new ProductDTO();
+        try {
+            Gson gson = new Gson();
+            productDTO = gson.fromJson(product, ProductDTO.class);
+        }catch (Exception ex) {logger.error(ex.getMessage());}
+        return productDTO;
     }
 }

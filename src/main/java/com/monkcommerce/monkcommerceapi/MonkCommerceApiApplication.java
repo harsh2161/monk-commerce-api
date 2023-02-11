@@ -8,6 +8,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,6 +19,7 @@ import java.io.IOException;
 import java.util.Objects;
 
 @SpringBootApplication
+@EnableAsync
 public class MonkCommerceApiApplication {
 	private static final Logger logger = LoggerFactory.getLogger(MonkCommerceApiApplication.class);
 	public static void main(String[] args) throws IOException {
@@ -36,4 +41,14 @@ public class MonkCommerceApiApplication {
 		logger.info("Firebase Configured");
 	}
 
+	@Bean("asyncExecution")
+	public TaskExecutor getAsyncExecutor()
+	{
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(20);
+		executor.setMaxPoolSize(1000);
+		executor.setWaitForTasksToCompleteOnShutdown(true);
+		executor.setThreadNamePrefix("Async-");
+		return executor;
+	}
 }

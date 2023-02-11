@@ -12,7 +12,7 @@ public class ExternalAPI
     public static final Integer DEFAULT_LIMIT = 100;
     public static final Integer DEFAULT_PAGE = 1;
     public static final String DATA_SAVED = "Data Saved Successfully";
-    public static final Integer DEFAULT_PRODUCT_LIMIT = 10;
+    public static final Integer DEFAULT_PRODUCT_LIMIT = 100;
     public static HttpHeaders getHeaders(Map<String,String> headersValue)
     {
         HttpHeaders headers = new HttpHeaders();
