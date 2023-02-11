@@ -8,4 +8,14 @@ clone the project in your local setup.
 
 done.
 
-Please view the project screen shot folder too their i had uploaded the project api responses
+Please view the project screen shot folder too their i had uploaded the project api responses.
+
+LinkedIn : https://www.linkedin.com/in/harsh-pandey-2161hp
+Skype : https://join.skype.com/invite/w7Fv2iEpdwlS
+ShowCase : https://www.showwcase.com/harshpandey9079939
+Twitter : https://twitter.com/harshpandey2121
+Github : https://github.com/harsh2161
+
+Thankyou
+Harsh Pandey
++91-7891676144
