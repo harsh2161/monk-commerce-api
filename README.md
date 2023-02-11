@@ -73,6 +73,7 @@ ShowCase : https://www.showwcase.com/harshpandey9079939
 Twitter : https://twitter.com/harshpandey2121
 Github : https://github.com/harsh2161
 Gmail : harshpandey9079@gmail.com
+Resume Link : https://github.com/harsh2161/resume
 
 Thankyou
 Harsh Pandey
