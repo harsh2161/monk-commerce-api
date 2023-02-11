@@ -4,6 +4,8 @@ import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.monkcommerce.monkcommerceapi.constants.FirebaseConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -14,10 +16,12 @@ import java.util.Objects;
 
 @SpringBootApplication
 public class MonkCommerceApiApplication {
+	private static final Logger logger = LoggerFactory.getLogger(MonkCommerceApiApplication.class);
 	public static void main(String[] args) throws IOException {
 
 		SpringApplication.run(MonkCommerceApiApplication.class, args);
 
+		logger.info("Firebase Configuration Started");
 		ClassLoader classLoader = MonkCommerceApiApplication.class.getClassLoader();
 
 		File file = new File(Objects.requireNonNull(classLoader.getResource(FirebaseConstants.FIREBASE_SERVICE_ACCOUNT_KEY)).getFile());
@@ -29,6 +33,7 @@ public class MonkCommerceApiApplication {
 				.build();
 
 		FirebaseApp.initializeApp(options);
+		logger.info("Firebase Configured");
 	}
 
 }

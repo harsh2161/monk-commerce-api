@@ -7,6 +7,8 @@ import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthRegister
 import com.monkcommerce.monkcommerceapi.data_objects.authentication.AuthenticationRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.register.RegisterRequest;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,15 +23,24 @@ import java.util.concurrent.ExecutionException;
 @RequiredArgsConstructor
 public class UserAuthenticationController
 {
+    private static final Logger logger = LoggerFactory.getLogger(UserAuthenticationController.class);
     @Autowired
     private final AuthenticationService service;
     @PostMapping("/register")
-    public ResponseEntity<AuthRegisterResponse> register(@RequestBody RegisterRequest request) throws InputException, ExecutionException, InterruptedException, DataException {
-        return ResponseEntity.ok(service.register(request));
+    public ResponseEntity<AuthRegisterResponse> register(@RequestBody RegisterRequest request) throws InputException, ExecutionException, InterruptedException, DataException
+    {
+        logger.info("Register Process of "+request.getEmail()+" is started.");
+        var response = service.register(request);
+        logger.info("Getting Response of registering "+request.getEmail()+" is :"+response);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<AuthRegisterResponse> authenticate(@RequestBody AuthenticationRequest request) throws ExecutionException, InterruptedException, InputException, DataException {
-        return ResponseEntity.ok(service.authenticate(request));
+    public ResponseEntity<AuthRegisterResponse> authenticate(@RequestBody AuthenticationRequest request) throws ExecutionException, InterruptedException, InputException, DataException
+    {
+        logger.info("Authentication Process of "+request.getEmail()+" is started.");
+        var response = service.authenticate(request);
+        logger.info("Getting Response of authentication "+request.getEmail()+" is :"+response);
+        return ResponseEntity.ok(response);
     }
 }

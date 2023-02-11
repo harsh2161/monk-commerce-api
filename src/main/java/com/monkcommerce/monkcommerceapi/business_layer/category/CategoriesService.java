@@ -8,18 +8,21 @@ import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import com.monkcommerce.monkcommerceapi.database_layer.category.CategoriesRepository;
 import com.monkcommerce.monkcommerceapi.validations.PageAndLimitValidator;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class CategoriesService
 {
+    private static final Logger logger = LoggerFactory.getLogger(CategoriesService.class);
     private final CategoriesRepository categoriesRepository;
     public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
         return categoriesRepository.getAndStoreCategoriesFromExternalApi();
     }
 
-    public CategoriesDTO getCategories(CategoryRequest request) throws InputException {
+    public CategoriesDTO getCategories(CategoryRequest request) throws InputException, DataException {
         if(request == null)
             request = new CategoryRequest();
 

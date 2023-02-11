@@ -10,6 +10,8 @@ import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Categor
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -28,8 +30,11 @@ public class CategoriesRepository
 {
     private static Firestore firebaseDatabase;
     private static CollectionReference baseCollection;
+    private static final Logger logger = LoggerFactory.getLogger(CategoriesRepository.class);
     private static Integer BATCH_LIMIT = 500;
     public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
+        logger.info("Calling External api in repository started.");
+
         Integer page = ExternalAPI.DEFAULT_PAGE;
         CategoriesDTO categoriesDTO = new CategoriesDTO();
 
@@ -47,16 +52,22 @@ public class CategoriesRepository
 
             page++;
         }
-
+        logger.info("Fetched External api in repository completed.");
         if(categoriesDTO.getCategories() != null && categoriesDTO.getCategories().size() > 0)
             if(!saveAllFetchedCategories(categoriesDTO.getCategories()))
+            {
+                logger.error("Data is not saved to our database");
                 throw new DataException("Data is not saved to our database");
+            }
 
+        logger.info("Data is saved our database");
         return new ProcessStatus(true,ExternalAPI.DATA_SAVED);
     }
 
-    public static boolean saveAllFetchedCategories(ArrayList<Category> categories) {
+    public static boolean saveAllFetchedCategories(ArrayList<Category> categories)
+    {
         try {
+            logger.info("Saving fetched data from third party api to our database");
             firebaseDatabase = FirestoreClient.getFirestore();
             baseCollection = firebaseDatabase.collection("WebProjects").document("Monk-Commerce-Api").collection("Backend-Project").document("Categories").collection("product-categories");
 
@@ -83,18 +94,20 @@ public class CategoriesRepository
                 commitCategories.get();
                 Response = Stream.of(commitCategories).allMatch(val -> commitCategories.isDone()) && Response;
             }
+            logger.info("Saved the data to our servers");
             return Response;
         }
         catch (Exception ex)
         {
+            logger.error("Getting error : "+ex.getMessage());
             System.out.println(ex.getMessage());
         }
         return false;
     }
 
-    public CategoriesDTO getCategories(CategoryRequest request)
-    {
+    public CategoriesDTO getCategories(CategoryRequest request) throws DataException {
         try {
+            logger.info("Get Categories from our databases");
             firebaseDatabase = FirestoreClient.getFirestore();
             baseCollection = firebaseDatabase.collection("WebProjects").document("Monk-Commerce-Api").collection("Backend-Project");
 
@@ -107,13 +120,14 @@ public class CategoriesRepository
             for (var documentCategory : documentsCategory) {
                 categoriesDTO.AddCategories(documentCategory.toObject(Category.class));
             }
+            logger.info("Successfully got the categories from database");
             return categoriesDTO;
         }
         catch (Exception ex)
         {
+            logger.error("Getting error : "+ex.getMessage());
             System.out.println(ex.getMessage());
         }
-
-        return new CategoriesDTO();
+        throw new DataException("Data is not present");
     }
 }

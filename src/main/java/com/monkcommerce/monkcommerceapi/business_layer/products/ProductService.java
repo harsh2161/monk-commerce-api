@@ -9,19 +9,25 @@ import com.monkcommerce.monkcommerceapi.database_layer.products.ProductRepositor
 import com.monkcommerce.monkcommerceapi.validations.IdValidator;
 import com.monkcommerce.monkcommerceapi.validations.PageAndLimitValidator;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class ProductService
 {
+    private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ProductRepository productRepository;
-    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws InputException, DataException {
+    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws InputException, DataException
+    {
+        logger.info("started validating inputs "+categoryId);
         IdValidator.isIdValidThrowException(categoryId);
+        logger.info("inputs are validated.");
         return productRepository.getAndStoreProductsFromExternalApi(categoryId);
     }
 
-    public ProductDTO getProducts(ProductRequest request) throws InputException {
+    public ProductDTO getProducts(ProductRequest request) throws InputException, DataException {
         if(request == null)
             request = new ProductRequest();
 
