@@ -4,7 +4,7 @@ You need spring boot ide in my case i used IntelliJ IDEA 2022.3.1 (Community Edi
 
 clone the project in your local setup.
 
-(Used firebase storage as backend which is remote so you DONT require any extra configuration for setup).
+(Used firebase storage as backend which is remote so you DONT require any extra configuration or data transfer for setup which generally reuired in mysql).
 
 done.
 
