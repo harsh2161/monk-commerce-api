@@ -8,6 +8,8 @@ clone the project in your local setup.
 
 done.
 
+Demo credentials : email : harsh5@gmail.com , password : Harsh5@2161
+
 Authentication Api Link
 1. https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-396cbb59-aea1-406b-8492-357cda09e11e
 2. https://galactic-star-507568.postman.co/workspace/6e9fb0d3-54f0-4537-82fa-9dc0d3632c19/request/25493828-d0795899-f55f-497c-96c1-764ebe7956f3
