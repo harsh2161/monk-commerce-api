@@ -60,7 +60,7 @@ public class ProductRepository
 
             if (products.getProducts() != null && products.getProducts().size() > 0)
             {
-                isResponseTrue = isResponseTrue & saveAllFetchedProducts(categoryId, products.getProducts());
+                isResponseTrue = isResponseTrue & saveAllFetchedProducts(categoryId, products.getProducts(),page);
             }
             else
                 break;
@@ -101,7 +101,7 @@ public class ProductRepository
         throw new DataException("Data is not present");
     }
     @Bean("asyncExecution")
-    private boolean saveAllFetchedProducts(String categoryId, ArrayList<Product> products)
+    private boolean saveAllFetchedProducts(String categoryId, ArrayList<Product> products,Integer page)
     {
         try
         {
@@ -132,7 +132,7 @@ public class ProductRepository
                 commitCategories.get();
                 Response = Stream.of(commitCategories).allMatch(val -> commitCategories.isDone()) && Response;
             }
-            Response = Response & updateProductsCounts(categoryId, products);
+            Response = Response & updateProductsCounts(categoryId, products,page);
             logger.info("Sucessfully saved Products into our database");
             return Response;
         }
@@ -144,14 +144,14 @@ public class ProductRepository
         return false;
     }
 
-    private boolean updateProductsCounts(String categoryId,ArrayList<Product> products)
+    private boolean updateProductsCounts(String categoryId,ArrayList<Product> products,Integer page)
     {
         try
         {
             logger.info("Updating Products process started");
             firebaseDatabase = FirestoreClient.getFirestore();
             baseCollection = firebaseDatabase.collection("WebProjects").document("Monk-Commerce-Api").collection("Backend-Project").document("Categories").collection("product-categories");
-            ApiFuture<WriteResult> updateProductsCount = baseCollection.document(categoryId).update("noOfProducts", products.size());
+            ApiFuture<WriteResult> updateProductsCount = baseCollection.document(categoryId).update("noOfProducts", products.size()+page*ExternalAPI.DEFAULT_PRODUCT_LIMIT);
             updateProductsCount.get();
             logger.info("Updating Products process finished");
             return updateProductsCount.isDone();
