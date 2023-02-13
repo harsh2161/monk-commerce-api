@@ -1,12 +1,12 @@
 package com.monkcommerce.monkcommerceapi.database_layer.products;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
-import com.google.gson.Gson;
+import com.monkcommerce.monkcommerceapi.common.APIProductRequestor;
 import com.monkcommerce.monkcommerceapi.constants.ExternalAPI;
 import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.RateLimitException;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
 import com.monkcommerce.monkcommerceapi.data_objects.process.ProcessStatus;
 import com.monkcommerce.monkcommerceapi.data_objects.products.request.ProductRequest;
@@ -16,18 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 @Service
 @RequiredArgsConstructor
@@ -37,8 +30,9 @@ public class ProductRepository
     private static Firestore firebaseDatabase;
     private static CollectionReference baseCollection;
     private static Integer BATCH_LIMIT = 500;
+    private static final APIProductRequestor apiProductRequestor = new APIProductRequestor();
     @Bean("asyncExecution")
-    public boolean getAndStoreProductsFromExternalApi(ArrayList<Category> categories) throws DataException {
+    public boolean getAndStoreProductsFromExternalApi(ArrayList<Category> categories) throws DataException, InterruptedException {
         boolean response = true;
         for (var category : categories)
         {
@@ -47,26 +41,11 @@ public class ProductRepository
         return response;
     }
     @Bean("asyncExecution")
-    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws DataException {
+    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws DataException, InterruptedException {
         logger.info("Calling External api in repository started.");
         Integer page = ExternalAPI.DEFAULT_PAGE;
-        boolean isResponseTrue = true;
-        while (true) {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response = restTemplate.exchange(ExternalAPI.getProductWithParams(ExternalAPI.DEFAULT_PRODUCT_LIMIT, page, categoryId), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())), new ParameterizedTypeReference<String>() {});
-            var product = response.getBody();
-
-            ProductDTO products = extractProductValue(product);
-
-            if (products.getProducts() != null && products.getProducts().size() > 0)
-            {
-                isResponseTrue = isResponseTrue & saveAllFetchedProducts(categoryId, products.getProducts(),page);
-            }
-            else
-                break;
-
-            page++;
-        }
+        boolean isResponseTrue;
+        isResponseTrue = getTheProductDataResult(categoryId,page, true);
         if(!isResponseTrue)
         {
             return new ProcessStatus(false,"Product are not saved properly");
@@ -163,13 +142,25 @@ public class ProductRepository
         }
         return false;
     }
-    private ProductDTO extractProductValue(String product)
+    private boolean getTheProductDataResult(String categoryId,Integer page,boolean isResponseTrue) throws InterruptedException
     {
-        ProductDTO productDTO = new ProductDTO();
-        try {
-            Gson gson = new Gson();
-            productDTO = gson.fromJson(product, ProductDTO.class);
-        }catch (Exception ex) {logger.error(ex.getMessage());}
-        return productDTO;
+        try
+        {
+            var products = apiProductRequestor.makeProductRequest(categoryId,page);
+            if(products != null && products.getProducts() != null && products.getProducts().size() > 0)
+            {
+                logger.info("Fetched External api in repository completed.");
+                isResponseTrue = isResponseTrue & saveAllFetchedProducts(categoryId, products.getProducts(),page);
+                page++;
+                getTheProductDataResult(categoryId,page,isResponseTrue);
+            }
+            else
+                return isResponseTrue;
+        }
+        catch (RateLimitException ex)
+        {
+            TimeUnit.SECONDS.sleep(3);
+        }
+        return isResponseTrue;
     }
 }

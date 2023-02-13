@@ -3,8 +3,10 @@ package com.monkcommerce.monkcommerceapi.database_layer.category;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.google.firebase.cloud.FirestoreClient;
+import com.monkcommerce.monkcommerceapi.common.APICategoryRequestor;
 import com.monkcommerce.monkcommerceapi.constants.ExternalAPI;
 import com.monkcommerce.monkcommerceapi.custom_exceptions.DataException;
+import com.monkcommerce.monkcommerceapi.custom_exceptions.RateLimitException;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.request.CategoryRequest;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.CategoriesDTO;
 import com.monkcommerce.monkcommerceapi.data_objects.categories.response.Category;
@@ -14,16 +16,11 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @Service
@@ -35,30 +32,12 @@ public class CategoriesRepository
     private static final Logger logger = LoggerFactory.getLogger(CategoriesRepository.class);
     private static Integer BATCH_LIMIT = 500;
     private static final ProductRepository productRepository = new ProductRepository();
-    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
+    private static final APICategoryRequestor apiCategoryRequestor = new APICategoryRequestor();
+    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException, InterruptedException
+    {
         logger.info("Calling External api in repository started.");
 
-        Integer page = ExternalAPI.DEFAULT_PAGE;
-        boolean isResponseTrue = true;
-
-        while(true)
-        {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<CategoriesDTO> response = restTemplate.exchange(ExternalAPI.getCategoriesWithParams(ExternalAPI.DEFAULT_LIMIT,page), HttpMethod.GET, new HttpEntity<Object>(ExternalAPI.getHeadersWithApiKey(new HashMap<>())) , new ParameterizedTypeReference<CategoriesDTO>() {});
-
-            var categories = response.getBody();
-
-            if(categories != null && categories.getCategories() != null && categories.getCategories().size() > 0)
-            {
-                logger.info("Fetched External api in repository completed.");
-                isResponseTrue = isResponseTrue & saveAllFetchedCategories(categories.getCategories());
-            }
-            else
-                break;
-
-            page++;
-        }
-        if(!isResponseTrue)
+        if(!getTheCategoryDataResult(ExternalAPI.DEFAULT_PAGE, true))
         {
             logger.error("Data is not saved to our database");
             throw new DataException("Data is not saved to our database");
@@ -133,5 +112,25 @@ public class CategoriesRepository
             System.out.println(ex.getMessage());
         }
         throw new DataException("Data is not present");
+    }
+    private boolean getTheCategoryDataResult(Integer page,boolean isResponseTrue) throws InterruptedException {
+        try
+        {
+            var categories = apiCategoryRequestor.makeCategoriesRequest(page);
+            if(categories != null && categories.getCategories() != null && categories.getCategories().size() > 0)
+            {
+                logger.info("Fetched External api in repository completed.");
+                isResponseTrue = isResponseTrue & saveAllFetchedCategories(categories.getCategories());
+                page++;
+                getTheCategoryDataResult(page,isResponseTrue);
+            }
+            else
+                return isResponseTrue;
+        }
+        catch (RateLimitException ex)
+        {
+            TimeUnit.SECONDS.sleep(3);
+        }
+        return isResponseTrue;
     }
 }

@@ -18,7 +18,7 @@ public class CategoriesService
 {
     private static final Logger logger = LoggerFactory.getLogger(CategoriesService.class);
     private final CategoriesRepository categoriesRepository;
-    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException {
+    public ProcessStatus getAndStoreCategoriesFromExternalApi() throws DataException, InterruptedException {
         return categoriesRepository.getAndStoreCategoriesFromExternalApi();
     }
 

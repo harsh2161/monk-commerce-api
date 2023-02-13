@@ -30,8 +30,7 @@ public class ProductController
     @Autowired
     private final ProductService productService;
     @GetMapping("/save/categoryId={categoryId}")
-    public ResponseEntity<ProcessStatus> getAndStoreProductsFromExternalApi(@PathVariable String categoryId) throws InputException, DataException
-    {
+    public ResponseEntity<ProcessStatus> getAndStoreProductsFromExternalApi(@PathVariable String categoryId) throws InputException, DataException, InterruptedException {
         if(!bucket.tryConsume(5)) return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         logger.info("calling third party api started for products having category id : "+categoryId);
         var response = productService.getAndStoreProductsFromExternalApi(categoryId);

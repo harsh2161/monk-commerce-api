@@ -21,7 +21,7 @@ public class ProductService
 {
     private static final Logger logger = LoggerFactory.getLogger(ProductService.class);
     private final ProductRepository productRepository;
-    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws InputException, DataException {
+    public ProcessStatus getAndStoreProductsFromExternalApi(String categoryId) throws InputException, DataException, InterruptedException {
         logger.info("started validating inputs "+categoryId);
         IdValidator.isIdValidThrowException(categoryId);
         logger.info("inputs are validated.");

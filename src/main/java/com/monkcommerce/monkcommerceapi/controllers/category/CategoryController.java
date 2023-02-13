@@ -30,8 +30,7 @@ public class CategoryController
     @Autowired
     private final CategoriesService categoriesService;
     @GetMapping("/save")
-    public ResponseEntity<ProcessStatus> getAndStoreCategoriesFromExternalApi() throws DataException
-    {
+    public ResponseEntity<ProcessStatus> getAndStoreCategoriesFromExternalApi() throws DataException, InterruptedException {
         if(!bucket.tryConsume(5)) return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).build();
         logger.info("Calling third party api started ");
         var response = categoriesService.getAndStoreCategoriesFromExternalApi();
