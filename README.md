@@ -1,3 +1,5 @@
+PLEASE HIT THE API AFTER 1 PM ON MONDAY 13 FEB 2023. NOW (12 feb 9 pm) server has exhausted its limit of firebase
+
 How to setup project.
 
 You need spring boot ide in my case i used IntelliJ IDEA 2022.3.1 (Community Edition) , postman.
