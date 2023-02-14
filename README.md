@@ -1,4 +1,4 @@
-PLEASE HIT THE API AFTER 1 PM ON MONDAY 14 FEB 2023. server has exhausted its limit of firebase
+PLEASE HIT THE API AFTER 1 PM ON 14 FEB 2023. server has exhausted its limit of firebase
 
 How to setup project.
 
