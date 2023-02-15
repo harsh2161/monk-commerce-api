@@ -28,7 +28,7 @@ public class APIProductRequestor
     {
         this.maxRequestsPerInterval = 100;
         this.intervalInSeconds = 3;
-        this.retryIntervalInSeconds = 2;
+        this.retryIntervalInSeconds = 1;
         this.requestTimes = new LinkedList<>();
     }
 

@@ -130,7 +130,7 @@ public class ProductRepository
             logger.info("Updating Products process started");
             firebaseDatabase = FirestoreClient.getFirestore();
             baseCollection = firebaseDatabase.collection("WebProjects").document("Monk-Commerce-Api").collection("Backend-Project").document("Categories").collection("product-categories");
-            ApiFuture<WriteResult> updateProductsCount = baseCollection.document(categoryId).update("noOfProducts", products.size()+page*ExternalAPI.DEFAULT_PRODUCT_LIMIT);
+            ApiFuture<WriteResult> updateProductsCount = baseCollection.document(categoryId).update("noOfProducts", products.size()+((page-1)*ExternalAPI.DEFAULT_PRODUCT_LIMIT));
             updateProductsCount.get();
             logger.info("Updating Products process finished");
             return updateProductsCount.isDone();
